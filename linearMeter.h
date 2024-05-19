@@ -109,10 +109,16 @@ void linearMeter(TFT_eSPI *tft, int val, int x, int y, int w, int h, int g, int 
 /**
  *
  */
-void verticalLinearMeter(TFT_eSPI *tft, float val, float minVal, float maxVal, int x, int y, int w, int h, int g, int n, byte s, boolean mirrored = false) {
+void verticalLinearMeter(TFT_eSPI *tft, const char *category, float val, float minVal, float maxVal, int x, int y, int w, int h, int g, int n, byte s, boolean mirrored = false) {
 
+    // Header
+    tft->setTextSize(1);
+    int16_t textWidthHeader = tft->textWidth(category, 2);
+    tft->setTextColor(TFT_YELLOW, TFT_BLACK);
+    tft->drawString(category, x + (textWidthHeader / 2), y - (n * (h + g)) - h, 2);
+
+    tft->setTextSize(1);
     int barVal = map(val, minVal, maxVal, 1, n);
-
     int colour = TFT_DARKGREY;
 
     for (int b = 1; b <= n; b++) {

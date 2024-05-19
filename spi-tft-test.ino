@@ -27,7 +27,7 @@ DallasTemperature ds18B20(new OneWire(PIN_TEMP_SENSOR));
 #define AD_RESOLUTION 10
 
 volatile float vBatterry;
-volatile float cpuTemperature;
+volatile float temperature;
 
 // GPS Mutex
 auto_init_mutex(_gpsMutex);
@@ -52,16 +52,14 @@ bool timeHasPassed(long fromWhen, int howLong) {
  */
 void displayHeaderText() {
 
-    tft.setTextSize(2);
+    tft.setTextSize(1);
     tft.setTextDatum(MC_DATUM);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
 
 #define HEADER_TEXT_Y 8
-    tft.drawString("Batt", 40, HEADER_TEXT_Y, 1);
     tft.drawString("Sats", 140, HEADER_TEXT_Y, 1);
     tft.drawString("Alt", 200, HEADER_TEXT_Y, 1);
-    tft.drawString("Temp", 290, HEADER_TEXT_Y, 1);
-    tft.drawString("Time", 430, HEADER_TEXT_Y, 1);
+    tft.drawString("Time", 320, HEADER_TEXT_Y, 1);
 
     tft.drawString("Hdop", 445, 280, 1);
 }
@@ -90,12 +88,6 @@ void displayValues() {
 
 #define FIRST_LINE_VALUES_Y 55
 
-    // Akku Feszültég
-    memset(buf, '\0', sizeof(buf));
-    dtostrf(vBatterry, 2, 1, buf);
-    tft.setTextPadding(14 * 4);
-    tft.drawString(buf, 45, FIRST_LINE_VALUES_Y, 6);
-
     // Műholdak száma
     short sats = gps.satellites.isValid() && gps.satellites.age() < 3000 ? gps.satellites.value() : 0;
     memset(buf, '\0', sizeof(buf));
@@ -110,16 +102,10 @@ void displayValues() {
     tft.setTextPadding(14 * 4);
     tft.drawString(buf, 190, FIRST_LINE_VALUES_Y, 4);
 
-    // Hőmérséklet
-    memset(buf, '\0', sizeof(buf));
-    dtostrf(cpuTemperature, 2, 1, buf);
-    tft.setTextPadding(14 * 5);
-    tft.drawString(buf, 280, FIRST_LINE_VALUES_Y, 4);
-
     // Dátum
     if (gps.date.isValid() && gps.date.age() < 3000) {
         memset(buf, '\0', sizeof(buf));
-        dtostrf(cpuTemperature, 2, 1, buf);
+        dtostrf(temperature, 2, 1, buf);
         sprintf(buf, "%04d-%02d-%02d", gps.date.year(), gps.date.month(), gps.date.day());
         tft.setTextPadding(14 * 10);
         tft.drawString(buf, 40, 315, 2);
@@ -134,7 +120,7 @@ void displayValues() {
         // tft.setTextPadding(14 * 10);
         sprintf(buf, "%02d:%02d", hours, mins);
         tft.setTextPadding(14 * 8);
-        tft.drawString(buf, 420, FIRST_LINE_VALUES_Y, 6);
+        tft.drawString(buf, 320, FIRST_LINE_VALUES_Y, 6);
     }
 
     // Hdop
@@ -160,24 +146,26 @@ void displayValues() {
 
     // Vertical Line bar - Batterry
     verticalLinearMeter(&tft,
+                        "Batt",    // category
                         vBatterry, // val
                         3,         // minVal
                         6,         // maxVal
                         0,         // x
-                        270,       // y
+                        230,       // y
                         30,        // bar-w
                         10,        // bar-h
                         2,         // gap
                         15,        // n
                         BLUE2RED); // color
 
-    // Vertical Line bar - cpuTemperature
+    // Vertical Line bar - temperature
     verticalLinearMeter(&tft,
-                        cpuTemperature,   // val
+                        "Temp",           // category
+                        temperature,      // val
                         -10,              // minVal
                         +45,              // maxVal
                         tft.width() - 30, // x = maxX - bar-w
-                        270,              // y
+                        230,              // y
                         30,               // bar-w
                         10,               // bar-h
                         2,                // gap
@@ -247,7 +235,7 @@ void readSensorValues() {
     static long lastReadSensors = millis() - 1000;
     if (timeHasPassed(lastReadSensors, 1000)) {
         vBatterry = readBatterry();
-        cpuTemperature = readCpuTemperature();
+        temperature = readtemperature();
         lastReadSensors = millis();
     }
 }
@@ -308,7 +296,7 @@ float readBatterry() {
 /**
  * CPU beépített hőmérséklet mérő olvasása
  */
-float readCpuTemperature() {
+float readtemperature() {
     ds18B20.requestTemperaturesByIndex(DS18B20_TEMP_SENSOR_NDX);
     return ds18B20.getTempCByIndex(DS18B20_TEMP_SENSOR_NDX);
 }

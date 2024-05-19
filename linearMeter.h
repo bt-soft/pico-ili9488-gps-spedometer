@@ -150,11 +150,11 @@ void verticalLinearMeter(TFT_eSPI *tft, float val, float minVal, float maxVal, i
         // Koordináta érték megjelenítése
         char buffer[10]; // Karaktertömb a szöveg tárolásához
 
-        // A két szélsőérték megjelenítése
+        // A min/max szélsőérték megjelenítése
         if (b == 1 || b == n) {
             sprintf(buffer, "%.1f", b == 1 ? minVal : maxVal); // Szám értékének formázása és karaktertömbbe írása
         } else if (b <= barVal && b + 1 > barVal) {
-            sprintf(buffer, "%.1f", val); // Szám értékének formázása és karaktertömbbe írása
+            sprintf(buffer, "%.1f", val); // Aktuális érték formázása és karaktertömbbe írása
         } else {
             memset(buffer, '\0', sizeof(buffer));
         }

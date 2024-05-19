@@ -187,9 +187,32 @@ void displayValues() {
               SPEED_RADIUS /*radius*/, SPEED_RINGMETER_ANGLE /*angle*/,
               true /*coloredValue*/, " km/h", GREEN2RED);
 
-    // Vertical Line bar
-    //  verticalLinearMeter(&tft, vBatterry, 10, 15, 0, 280, 40, 10, 2, 15, BLUE2RED);
-    verticalLinearMeter(&tft, vBatterry, 3, 6, 0, 270, 30, 10, 2, 15, BLUE2RED);
+    // Vertical Line bar - Batterry
+    verticalLinearMeter(&tft,
+                        vBatterry, // val
+                        3,         // minVal
+                        6,         // maxVal
+                        0,         // x
+                        270,       // y
+                        30,        // bar-w
+                        10,        // bar-h
+                        2,         // gap
+                        15,        // n
+                        BLUE2RED); // color
+
+    // Vertical Line bar - cpuTemperature
+    verticalLinearMeter(&tft,
+                        cpuTemperature,   // val
+                        -15,              // minVal
+                        +50,              // maxVal
+                        tft.width() - 30, // x = maxX - bar-w
+                        270,              // y
+                        30,               // bar-w
+                        10,               // bar-h
+                        2,                // gap
+                        15,               // n
+                        BLUE2RED,         // color
+                        true);            // bal oldalt legyenek az értékek
 }
 
 /**

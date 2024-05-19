@@ -144,8 +144,18 @@ void verticalLinearMeter(TFT_eSPI *tft, float val, float minVal, float maxVal, i
                 break; // Rainbow (red to violet)
             }
         }
-        tft->fillRect(x, y - b * (h + g), w, h, colour);             // Bar
-        tft->fillRect(x + w + 5, y - b * (h + g), 20, h, TFT_BLACK); // korábbi érték törlése
+
+        // Bar kirajzolása
+        tft->fillRect(x, y - b * (h + g), w, h, colour);
+
+        // Korábbi bar melletti felirat/érték törlése
+        int tickX = x + (mirrored ? -3 * 6 : w + 15);
+
+        tft->fillRect(tickX + (mirrored ? -15 : -10), // x
+                      y - b * (h + g),                // y
+                      5 * 6,                          // w
+                      h,                              // h
+                      TFT_BLACK);                     // color
 
         // Koordináta érték megjelenítése
         char buffer[10]; // Karaktertömb a szöveg tárolásához
@@ -162,8 +172,13 @@ void verticalLinearMeter(TFT_eSPI *tft, float val, float minVal, float maxVal, i
         int16_t textWidth = tft->textWidth(buffer, 1); // Szöveg szélességének kiszámítása
         tft->setTextPadding(textWidth);                // Szélesség beállítása a paddinghez
         tft->setTextColor(TFT_WHITE, TFT_BLACK);       // Fehér szöveg fekete háttérrel
+
+        // Szöveg Kiírása
         // tft->drawString(buffer, x + (w / 2) - (textWidth / 2), y - (b * (h + g) / 2), 1); // Szöveg rajzolása bele a bar közepébe
-        tft->drawString(buffer, x + w + 15, y - (b * (h + g)) + h / 2, 1); // Szöveg rajzolása
+        tft->drawString(buffer,
+                        tickX,                     // x
+                        y - (b * (h + g)) + h / 2, // y
+                        1);                        // font
     }
 }
 

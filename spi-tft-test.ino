@@ -57,11 +57,11 @@ void displayHeaderText() {
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
 
 #define HEADER_TEXT_Y 8
-    tft.drawString("Sats", 140, HEADER_TEXT_Y, 1);
-    tft.drawString("Alt", 200, HEADER_TEXT_Y, 1);
-    tft.drawString("Time", 320, HEADER_TEXT_Y, 1);
+    // tft.drawString("Sats", 140, HEADER_TEXT_Y, 1);
+    // tft.drawString("Alt", 200, HEADER_TEXT_Y, 1);
+    tft.drawString("Time/Date", 250, HEADER_TEXT_Y, 2);
 
-    tft.drawString("Hdop", 445, 280, 1);
+    tft.drawString("Hdop", 445, 280, 2);
 }
 
 /**
@@ -86,41 +86,39 @@ void displayValues() {
 
     char buf[11];
 
-#define FIRST_LINE_VALUES_Y 55
+#define FIRST_LINE_VALUES_Y 40
 
-    // Műholdak száma
-    short sats = gps.satellites.isValid() && gps.satellites.age() < 3000 ? gps.satellites.value() : 0;
-    memset(buf, '\0', sizeof(buf));
-    dtostrf(sats, 2, 0, buf);
-    tft.setTextPadding(14 * 2);
-    tft.drawString(buf, 130, FIRST_LINE_VALUES_Y, 4);
+    // // Műholdak száma
+    // short sats = gps.satellites.isValid() && gps.satellites.age() < 3000 ? gps.satellites.value() : 0;
+    // memset(buf, '\0', sizeof(buf));
+    // dtostrf(sats, 2, 0, buf);
+    // tft.setTextPadding(14 * 2);
+    // tft.drawString(buf, 130, FIRST_LINE_VALUES_Y, 4);
 
-    // Magasság
-    int alt = gps.satellites.isValid() && gps.altitude.age() < 3000 ? gps.altitude.meters() : 0;
-    memset(buf, '\0', sizeof(buf));
-    dtostrf(alt, 4, 0, buf);
-    tft.setTextPadding(14 * 4);
-    tft.drawString(buf, 190, FIRST_LINE_VALUES_Y, 4);
-
-    // Dátum
-    if (gps.date.isValid() && gps.date.age() < 3000) {
-        memset(buf, '\0', sizeof(buf));
-        dtostrf(temperature, 2, 1, buf);
-        sprintf(buf, "%04d-%02d-%02d", gps.date.year(), gps.date.month(), gps.date.day());
-        tft.setTextPadding(14 * 10);
-        tft.drawString(buf, 40, 315, 2);
-    }
+    // // Magasság
+    // int alt = gps.satellites.isValid() && gps.altitude.age() < 3000 ? gps.altitude.meters() : 0;
+    // memset(buf, '\0', sizeof(buf));
+    // dtostrf(alt, 4, 0, buf);
+    // tft.setTextPadding(14 * 4);
+    // tft.drawString(buf, 190, FIRST_LINE_VALUES_Y, 4);
 
     // Idő
     if (gps.time.isValid() && gps.time.age() < 3000) {
         int hours = gps.time.hour();
         int mins = gps.time.minute();
         dls.correctTime(mins, hours, gps.date.day(), gps.date.month(), gps.date.year());
-        // sprintf(buf, "%02d:%02d:%02d", hours, mins, gps.time.second());
-        // tft.setTextPadding(14 * 10);
         sprintf(buf, "%02d:%02d", hours, mins);
-        tft.setTextPadding(14 * 8);
-        tft.drawString(buf, 320, FIRST_LINE_VALUES_Y, 6);
+        tft.setTextSize(1);
+        tft.drawString(buf, 250, 45, 6);
+    }
+
+    // Dátum
+    if (gps.date.isValid() && gps.date.age() < 3000) {
+        memset(buf, '\0', sizeof(buf));
+        sprintf(buf, "%04d-%02d-%02d", gps.date.year(), gps.date.month(), gps.date.day());
+        tft.setTextPadding(8 * 10);
+        tft.setTextColor(TFT_GREENYELLOW, TFT_BLACK);
+        tft.drawString(buf, 250, 70, 2);
     }
 
     // Hdop
@@ -128,7 +126,8 @@ void displayValues() {
     memset(buf, '\0', sizeof(buf));
     dtostrf(hdop, 3, 2, buf);
     tft.setTextPadding(14 * 6);
-    tft.drawString(buf, 445, 308, 4);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.drawString(buf, 445, 308, 2);
 
     // Sebesség
 #define MAX_SPEED 240

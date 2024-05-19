@@ -47,41 +47,6 @@ bool timeHasPassed(long fromWhen, int howLong) {
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#define MAX_SPEED 240
-#define SPEED_RADIUS 150
-#define SPEED_RINGMETER_X (tft.width() / 2 - SPEED_RADIUS)
-#define SPEED_RINGMETER_Y 100
-#define SPEED_RINGMETER_ANGLE 230
-
-void displaytest() {
-
-    linearMeter(&tft, cpuTemperature,
-                10 /* x */, 10 /* y */,
-                3 /*w-bar*/, 8 /*h-bar*/,
-                3 /*gap*/,
-                50 /*segments*/,
-                BLUE2RED);
-
-    // Draw a large meter
-    static int value = 0;
-    static int ramp = 5;
-
-    value += (ramp);
-    if (value > MAX_SPEED) {
-        ramp = -5;
-        delay(1000);
-    }
-    if (value < 0) {
-        ramp = 5;
-    }
-
-    ringMeter(&tft, value,
-              0 /*min*/, MAX_SPEED /*max*/,
-              SPEED_RINGMETER_X /*xpos*/, SPEED_RINGMETER_Y /*ypos*/,
-              SPEED_RADIUS /*radius*/, SPEED_RINGMETER_ANGLE /*angle*/,
-              true /*coloredValue*/, " km/h", GREEN2RED);
-}
-
 /**
  * Fejléc feliratok
  */
@@ -180,6 +145,12 @@ void displayValues() {
     tft.drawString(buf, 445, 308, 4);
 
     // Sebesség
+#define MAX_SPEED 240
+#define SPEED_RADIUS 140
+#define SPEED_RINGMETER_X (tft.width() / 2 - SPEED_RADIUS)
+#define SPEED_RINGMETER_Y 100
+#define SPEED_RINGMETER_ANGLE 230
+
     int speedValue = gps.speed.isValid() && gps.speed.age() < 3000 && gps.speed.kmph() > 1 ? gps.speed.kmph() : 0;
     ringMeter(&tft, speedValue,
               0 /*min*/, MAX_SPEED /*max*/,
@@ -203,8 +174,8 @@ void displayValues() {
     // Vertical Line bar - cpuTemperature
     verticalLinearMeter(&tft,
                         cpuTemperature,   // val
-                        -15,              // minVal
-                        +50,              // maxVal
+                        -10,              // minVal
+                        +45,              // maxVal
                         tft.width() - 30, // x = maxX - bar-w
                         270,              // y
                         30,               // bar-w

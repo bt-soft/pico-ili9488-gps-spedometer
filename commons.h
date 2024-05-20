@@ -30,9 +30,9 @@
 // #define TFT_GREY 0x2104 // Dark grey 16-bit colour
 #define TFT_GREY RGB565(50, 50, 50)
 #define TFT_BORDER_COLOR RGB565(70, 70, 70)
+#define RINGMETER_LIGHTBLUE RGB565(73, 73, 255);
 
 // Speed RingMeter max érték
 #define SPEED_RINGMETER_MAX_VALUE 240
 #define SPEED_RINGMETER_RADIUS 140
-
 #endif

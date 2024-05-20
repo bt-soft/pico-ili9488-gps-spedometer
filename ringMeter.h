@@ -71,7 +71,7 @@ int ringMeter(TFT_eSPI *tft, int value, int vmin, int vmax, int x, int y, int r,
     byte inc = 6; // Draw segments every 3 degrees, increase to 6 for segmented ring
 
     // Variable to save "value" text colour from scheme and set default
-    int colour = TFT_BLUE;
+    int colour = RINGMETER_LIGHTBLUE;
 
     // Draw colour blocks every inc degrees
     for (int i = -halfAngle + inc / 2; i < halfAngle - inc / 2; i += inc) {
@@ -127,12 +127,12 @@ int ringMeter(TFT_eSPI *tft, int value, int vmin, int vmax, int x, int y, int r,
                 break; // Red to green (low battery etc.)
 
             default:
-                colour = TFT_BLUE;
+                colour = RINGMETER_LIGHTBLUE;
                 break; // Fixed colour
             }
             tft->fillTriangle(x0, y0, x1, y1, x2, y2, colour);
             tft->fillTriangle(x1, y1, x2, y2, x3, y3, colour);
-            // text_colour = colour; // Save the last colour drawn
+
         } else { // Fill in blank segments
 
             tft->fillTriangle(x0, y0, x1, y1, x2, y2, TFT_DARKGREY);

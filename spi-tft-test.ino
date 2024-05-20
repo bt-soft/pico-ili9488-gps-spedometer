@@ -129,7 +129,7 @@ void displayValues() {
     tft.drawString(buf, 85, 120, 2);
 
     // Sebesség
-    int speedValue = gps.speed.isValid() && gps.speed.age() < 3000 && gps.speed.kmph() > 1 ? gps.speed.kmph() : 0;
+    int speedValue = gps.speed.isValid() && gps.speed.age() < 3000 && gps.speed.kmph() >= 4 ? gps.speed.kmph() : 0;
     ringMeter(&tft,
               speedValue,                                 // val
               0,                                          // minValue

@@ -58,10 +58,10 @@ void displayHeaderText() {
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
 
 #define HEADER_TEXT_Y 6
-    tft.drawString("Time/Date", 250, HEADER_TEXT_Y, 2);
+    tft.drawString("Time/Date", 250, HEADER_TEXT_, 2);
     tft.drawString("Altitude", 455, HEADER_TEXT_Y, 2);
-    tft.drawString("Hdop", 85, 105, 2);
-    tft.drawString("Max Speed", 400, 105, 2);
+    tft.drawString("Hdop", 75, 100, 2);
+    tft.drawString("Max Speed", 400, 100, 2);
 }
 
 /**
@@ -87,12 +87,17 @@ void displayValues() {
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
 
     // Műholdak száma
-    short sats = gps.satellites.isValid() && gps.satellites.age() < 3000 ? gps.satellites.value() : 13;
+    short sats = gps.satellites.isValid() && gps.satellites.age() < 3000 ? gps.satellites.value() : 0;
     ringMeter(&tft, sats,
-              0 /*min*/, 15 /*max*/,
-              0 /*xpos*/, 8 /*ypos*/,
-              40 /*radius*/, 230 /*angle*/,
-              true /*coloredValue*/, "Sats", RED2GREEN);
+              SATS_RINGETER_MIN, // min
+              SATS_RINGETER_MAX, // max
+              0,                 // xpos
+              8,                 // ypos
+              40,                // radius
+              230,               // angle
+              true,              // coloredValue
+              "Sats",            // Text
+              RED2GREEN);
 
     // Magasság
     int alt = gps.satellites.isValid() && gps.altitude.age() < 3000 ? gps.altitude.meters() : 0;
@@ -124,9 +129,9 @@ void displayValues() {
     // Hdop
     double hdop = gps.satellites.isValid() && gps.hdop.age() < 3000 ? gps.hdop.hdop() : 0;
     sprintf(buf, "%.2f", hdop);
-    tft.setTextPadding(14 * 6);
+    tft.setTextPadding(5 * 14);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.drawString(buf, 85, 120, 2);
+    tft.drawString(buf, 75, 120, 4);
 
     // Sebesség
     int speedValue = gps.speed.isValid() && gps.speed.age() < 3000 && gps.speed.kmph() >= 4 ? gps.speed.kmph() : 0;
@@ -147,37 +152,37 @@ void displayValues() {
     sprintf(buf, "%3d", maxSpeed);
     tft.setTextPadding(3 * 14);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.drawString(buf, 390, 120, 2);
+    tft.drawString(buf, 400, 120, 4);
 
 #define VERTICAL_BARS_Y 290
     // Vertical Line bar - Batterry
     verticalLinearMeter(&tft,
-                        "Batt [V]",      // category
-                        vBatterry,       // val
-                        3,               // minVal
-                        6,               // maxVal
-                        0,               // x
-                        VERTICAL_BARS_Y, // bottom-left-y
-                        30,              // bar-w
-                        10,              // bar-h
-                        2,               // gap
-                        10,              // n
-                        BLUE2RED);       // color
+                        "Batt [V]",        // category
+                        vBatterry,         // val
+                        BATT_BARMETER_MIN, // minVal
+                        BATT_BARMETER_MAX, // maxVal
+                        0,                 // x
+                        VERTICAL_BARS_Y,   // bottom-left-y
+                        30,                // bar-w
+                        10,                // bar-h
+                        2,                 // gap
+                        10,                // n
+                        BLUE2RED);         // color
 
     // Vertical Line bar - temperature
     verticalLinearMeter(&tft,
-                        "Temp [C]",       // category
-                        temperature,      // val
-                        -10,              // minVal
-                        +45,              // maxVal
-                        tft.width() - 30, // x = maxX - bar-w
-                        VERTICAL_BARS_Y,  // bottom-left-y
-                        30,               // bar-w
-                        10,               // bar-h
-                        2,                // gap
-                        10,               // n
-                        BLUE2RED,         // color
-                        true);            // bal oldalt legyenek az értékek
+                        "Temp [C]",        // category
+                        temperature,       // val
+                        TEMP_BARMETER_MIN, // minVal
+                        TEMP_BARMETER_MAX, // maxVal
+                        tft.width() - 30,  // x = maxX - bar-w
+                        VERTICAL_BARS_Y,   // bottom-left-y
+                        30,                // bar-w
+                        10,                // bar-h
+                        2,                 // gap
+                        10,                // n
+                        BLUE2RED,          // color
+                        true);             // bal oldalt legyenek az értékek
 }
 
 /**

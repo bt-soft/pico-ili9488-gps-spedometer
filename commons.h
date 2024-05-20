@@ -32,6 +32,18 @@
 #define TFT_BORDER_COLOR RGB565(70, 70, 70)
 #define RINGMETER_LIGHTBLUE RGB565(73, 73, 255);
 
+// Akkumulátor
+#define SATS_RINGETER_MIN 0
+#define SATS_RINGETER_MAX 15
+
+// Akkumulátor
+#define BATT_BARMETER_MIN 3 // 10
+#define BATT_BARMETER_MAX 6 // 16
+
+// Hőmérséklet
+#define TEMP_BARMETER_MIN -5
+#define TEMP_BARMETER_MAX +50
+
 // Speed RingMeter max érték
 #define SPEED_RINGMETER_MAX_VALUE 240
 #define SPEED_RINGMETER_RADIUS 140

@@ -3,8 +3,6 @@
 
 #include "commons.h"
 
-#define TFT_BORDER_COLOR RGB565(70, 70, 70)
-
 /***************************************************************************************
 ** Function name:           rainbowColor
 ** Description:             Return a 16 bit rainbow colour
@@ -67,7 +65,7 @@ uint16_t rainbowColor(uint8_t spectrum) {
 // g    = pixel gap to next bar (can be 0)
 // n    = number of segments
 // s    = colour scheme
-void linearMeter(TFT_eSPI *tft, int val, int x, int y, int w, int h, int g, int n, byte s) {
+void linearBar(TFT_eSPI *tft, int val, int x, int y, int w, int h, int g, int n, byte s) {
 
     // Variable to save "value" text colour from scheme and set default
     int colour = TFT_BLUE;
@@ -76,29 +74,38 @@ void linearMeter(TFT_eSPI *tft, int val, int x, int y, int w, int h, int g, int 
     for (int b = 1; b <= n; b++) {
         if (val > 0 && b <= val) { // Fill in coloured blocks
             switch (s) {
-            case 0:
+
+            case RED2RED:
                 colour = TFT_RED;
                 break; // Fixed colour
-            case 1:
+
+            case GREEN2GREEN:
                 colour = TFT_GREEN;
                 break; // Fixed colour
-            case 2:
+
+            case BLUE2BLUE:
                 colour = TFT_BLUE;
                 break; // Fixed colour
-            case 3:
+
+            case BLUE2RED:
                 colour = rainbowColor(map(b, 0, n, 127, 0));
                 break; // Blue to red
-            case 4:
+
+            case GREEN2RED:
                 colour = rainbowColor(map(b, 0, n, 63, 0));
                 break; // Green to red
-            case 5:
+
+            case RED2GREEN:
                 colour = rainbowColor(map(b, 0, n, 0, 63));
                 break; // Red to green
-            case 6:
+
+            case RED2VIOLET:
                 colour = rainbowColor(map(b, 0, n, 0, 159));
                 break; // Rainbow (red to violet)
             }
+
             tft->fillRect(x + b * (w + g), y, w, h, colour);
+
         } else { // Fill in blank segments
 
             tft->fillRect(x + b * (w + g), y, w, h, TFT_DARKGREY);
@@ -130,25 +137,32 @@ void verticalLinearMeter(TFT_eSPI *tft, const char *category, float val, float m
 
         if (b <= barVal) { // Fill in coloured blocks
             switch (s) {
-            case 0:
+
+            case RED2RED:
                 colour = TFT_RED;
                 break; // Fixed colour
-            case 1:
+
+            case GREEN2GREEN:
                 colour = TFT_GREEN;
                 break; // Fixed colour
-            case 2:
+
+            case BLUE2BLUE:
                 colour = TFT_BLUE;
                 break; // Fixed colour
-            case 3:
+
+            case BLUE2RED:
                 colour = rainbowColor(map(b, 0, n, 127, 0));
                 break; // Blue to red
-            case 4:
+
+            case GREEN2RED:
                 colour = rainbowColor(map(b, 0, n, 63, 0));
                 break; // Green to red
-            case 5:
+
+            case RED2GREEN:
                 colour = rainbowColor(map(b, 0, n, 0, 63));
                 break; // Red to green
-            case 6:
+
+            case RED2VIOLET:
                 colour = rainbowColor(map(b, 0, n, 0, 159));
                 break; // Rainbow (red to violet)
             }
@@ -190,32 +204,6 @@ void verticalLinearMeter(TFT_eSPI *tft, const char *category, float val, float m
     tft->setTextPadding(4 * FONT2_WIDTH); // Szélesség beállítása a paddinghez
     tft->setTextSize(2);
     tft->drawString(buf, x + (mirrored ? 0 : 30), y + 10, 1);
-}
-
-// #########################################################################
-//  Draw a linear meter on the screen
-// #########################################################################
-void plotLinear(TFT_eSPI *tft, char *label, int x, int y) {
-#define LINEAR_METER_WIDTH 36
-
-    tft->drawRect(x, y, LINEAR_METER_WIDTH, 155, TFT_BORDER_COLOR); // keret
-
-    tft->fillRect(x + 2, y + 19, LINEAR_METER_WIDTH - 3, 155 - 38, TFT_WHITE);
-    tft->setTextColor(TFT_CYAN, TFT_BLACK);
-    tft->drawCentreString(label, x + LINEAR_METER_WIDTH / 2, y + 2, 2);
-
-    for (int i = 0; i < 110; i += 10) {
-        tft->drawFastHLine(x + 20, y + 27 + i, 6, TFT_BLACK);
-    }
-
-    for (int i = 0; i < 110; i += 50) {
-        tft->drawFastHLine(x + 20, y + 27 + i, 9, TFT_BLACK);
-    }
-
-    tft->fillTriangle(x + 3, y + 127, x + 3 + 16, y + 127, x + 3, y + 127 - 5, TFT_RED);
-    tft->fillTriangle(x + 3, y + 127, x + 3 + 16, y + 127, x + 3, y + 127 + 5, TFT_RED);
-
-    tft->drawCentreString("---", x + LINEAR_METER_WIDTH / 2, y + 155 - 18, 2);
 }
 
 #endif

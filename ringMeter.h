@@ -3,17 +3,6 @@
 
 #include "commons.h"
 
-// Meter colour schemes
-#define RED2RED 0
-#define GREEN2GREEN 1
-#define BLUE2BLUE 2
-#define BLUE2RED 3
-#define GREEN2RED 4
-#define RED2GREEN 5
-
-// #define TFT_GREY 0x2104 // Dark grey 16-bit colour
-#define TFT_GREY RGB565(50, 50, 50)
-
 /**
  * Return a 16-bit rainbow colour
  */
@@ -112,24 +101,31 @@ int ringMeter(TFT_eSPI *tft, int value, int vmin, int vmax, int x, int y, int r,
 
         if (i < v) { // Fill in coloured segments with 2 triangles
             switch (scheme) {
-            case 0:
+
+            case RED2RED:
                 colour = TFT_RED;
                 break; // Fixed colour
-            case 1:
+
+            case GREEN2GREEN:
                 colour = TFT_GREEN;
                 break; // Fixed colour
-            case 2:
+
+            case BLUE2BLUE:
                 colour = TFT_BLUE;
                 break; // Fixed colour
-            case 3:
+
+            case BLUE2RED:
                 colour = rainbow(map(i, -halfAngle, halfAngle, 0, 127));
                 break; // Full spectrum blue to red
-            case 4:
+
+            case GREEN2RED:
                 colour = rainbow(map(i, -halfAngle, halfAngle, 70, 127));
                 break; // Green to red (high temperature etc.)
-            case 5:
+
+            case RED2GREEN:
                 colour = rainbow(map(i, -halfAngle, halfAngle, 127, 63));
                 break; // Red to green (low battery etc.)
+
             default:
                 colour = TFT_BLUE;
                 break; // Fixed colour

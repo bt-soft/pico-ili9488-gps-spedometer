@@ -91,7 +91,7 @@ void displayValues() {
     ringMeter(&tft, sats,
               0 /*min*/, 15 /*max*/,
               0 /*xpos*/, 8 /*ypos*/,
-              40 /*radius*/, 270 /*angle*/,
+              40 /*radius*/, 230 /*angle*/,
               true /*coloredValue*/, "Sats", RED2GREEN);
 
     // Magasság
@@ -129,18 +129,18 @@ void displayValues() {
     tft.drawString(buf, 85, 120, 2);
 
     // Sebesség
-#define MAX_SPEED 240
-#define SPEED_RADIUS 140
-#define SPEED_RINGMETER_X (tft.width() / 2 - SPEED_RADIUS)
-#define SPEED_RINGMETER_Y 100
-#define SPEED_RINGMETER_ANGLE 230
-
     int speedValue = gps.speed.isValid() && gps.speed.age() < 3000 && gps.speed.kmph() > 1 ? gps.speed.kmph() : 0;
-    ringMeter(&tft, speedValue,
-              0 /*min*/, MAX_SPEED /*max*/,
-              SPEED_RINGMETER_X /*xpos*/, SPEED_RINGMETER_Y /*ypos*/,
-              SPEED_RADIUS /*radius*/, SPEED_RINGMETER_ANGLE /*angle*/,
-              true /*coloredValue*/, " km/h", GREEN2RED);
+    ringMeter(&tft,
+              speedValue,                                 // val
+              0,                                          // minValue
+              SPEED_RINGMETER_MAX_VALUE,                  // maxValue
+              (tft.width() / 2 - SPEED_RINGMETER_RADIUS), // x
+              100,                                        // y
+              SPEED_RINGMETER_RADIUS,                     // radius
+              230,                                        // angle
+              true,                                       // coloredValue
+              "km/h",                                     // felirat
+              GREEN2RED);                                 // scheme
 
     // Max Speed
     maxSpeed = MAX(maxSpeed, speedValue);

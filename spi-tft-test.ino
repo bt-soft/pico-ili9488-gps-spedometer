@@ -80,11 +80,11 @@ void displayValues() {
         return;
     }
 
+    char buf[11];
+
     tft.setTextSize(1);
     tft.setTextDatum(MC_DATUM);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-
-    char buf[11];
 
     // Műholdak száma
     short sats = gps.satellites.isValid() && gps.satellites.age() < 3000 ? gps.satellites.value() : 13;

@@ -58,7 +58,7 @@ void displayHeaderText() {
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
 
 #define HEADER_TEXT_Y 6
-    tft.drawString("Time/Date", 250, HEADER_TEXT_, 2);
+    tft.drawString("Time/Date", 250, HEADER_TEXT_Y, 2);
     tft.drawString("Altitude", 455, HEADER_TEXT_Y, 2);
     tft.drawString("Hdop", 75, 100, 2);
     tft.drawString("Max Speed", 400, 100, 2);

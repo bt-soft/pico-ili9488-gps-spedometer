@@ -26,6 +26,7 @@
         "vector": "cpp",
         "string_view": "cpp",
         "initializer_list": "cpp",
-        "*.impl": "cpp"
+        "*.impl": "cpp",
+        "compare": "cpp"
     }
 }

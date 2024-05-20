@@ -3,6 +3,12 @@
 
 #define __DEBUG_ON_SERIAL__
 
+#define FONT1_WIDTH 8
+#define FONT2_WIDTH 16
+#define FONT4_WIDTH 26
+#define FONT6_WIDTH 48
+#define FONT8_WIDTH 75
+
 /**
  * Az ILI9488 esetén az RGB színek tipikusan 565 formátumban vannak tárolva:
  *      5 bit a vörös

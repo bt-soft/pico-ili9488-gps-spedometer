@@ -24,14 +24,15 @@ TFT_eSPI tft = TFT_eSPI(); // Invoke custom library with default width and heigh
 #include <DallasTemperature.h>
 DallasTemperature ds18B20(new OneWire(PIN_TEMP_SENSOR));
 
-#define AD_RESOLUTION 10
-
-volatile float vBatterry;
-volatile float temperature;
+#define AD_RESOLUTION 12
+volatile float vBatterry = 0.0f;
+volatile float temperature = 0.0f;
+int maxSpeed = 0;
 
 // GPS Mutex
 auto_init_mutex(_gpsMutex);
 
+//---------------------------------------------------------------------------------------------------------------------------------------------------------
 /**
  * Eltelt már annyi idő?
  */
@@ -56,12 +57,11 @@ void displayHeaderText() {
     tft.setTextDatum(MC_DATUM);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
 
-#define HEADER_TEXT_Y 8
-    // tft.drawString("Sats", 140, HEADER_TEXT_Y, 1);
-    // tft.drawString("Alt", 200, HEADER_TEXT_Y, 1);
+#define HEADER_TEXT_Y 6
     tft.drawString("Time/Date", 250, HEADER_TEXT_Y, 2);
-
-    tft.drawString("Hdop", 445, 280, 2);
+    tft.drawString("Altitude", 455, HEADER_TEXT_Y, 2);
+    tft.drawString("Hdop", 85, 105, 2);
+    tft.drawString("Max Speed", 400, 105, 2);
 }
 
 /**
@@ -86,48 +86,47 @@ void displayValues() {
 
     char buf[11];
 
-#define FIRST_LINE_VALUES_Y 40
+    // Műholdak száma
+    short sats = gps.satellites.isValid() && gps.satellites.age() < 3000 ? gps.satellites.value() : 13;
+    ringMeter(&tft, sats,
+              0 /*min*/, 15 /*max*/,
+              0 /*xpos*/, 8 /*ypos*/,
+              40 /*radius*/, 270 /*angle*/,
+              true /*coloredValue*/, "Sats", RED2GREEN);
 
-    // // Műholdak száma
-    // short sats = gps.satellites.isValid() && gps.satellites.age() < 3000 ? gps.satellites.value() : 0;
-    // memset(buf, '\0', sizeof(buf));
-    // dtostrf(sats, 2, 0, buf);
-    // tft.setTextPadding(14 * 2);
-    // tft.drawString(buf, 130, FIRST_LINE_VALUES_Y, 4);
-
-    // // Magasság
-    // int alt = gps.satellites.isValid() && gps.altitude.age() < 3000 ? gps.altitude.meters() : 0;
-    // memset(buf, '\0', sizeof(buf));
-    // dtostrf(alt, 4, 0, buf);
-    // tft.setTextPadding(14 * 4);
-    // tft.drawString(buf, 190, FIRST_LINE_VALUES_Y, 4);
+    // Magasság
+    int alt = gps.satellites.isValid() && gps.altitude.age() < 3000 ? gps.altitude.meters() : 0;
+    sprintf(buf, "%4d", alt);
+    tft.setTextPadding(14 * 4);
+    tft.drawString(buf, 450, 30, 4);
 
     // Idő
     if (gps.time.isValid() && gps.time.age() < 3000) {
         int hours = gps.time.hour();
         int mins = gps.time.minute();
         dls.correctTime(mins, hours, gps.date.day(), gps.date.month(), gps.date.year());
-        sprintf(buf, "%02d:%02d", hours, mins);
+        sprintf(buf, "%02d:%02d:%02d", hours, mins, gps.time.second());
         tft.setTextSize(1);
+        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+        tft.setTextPadding(tft.textWidth(buf, 6));
         tft.drawString(buf, 250, 45, 6);
     }
 
     // Dátum
     if (gps.date.isValid() && gps.date.age() < 3000) {
-        memset(buf, '\0', sizeof(buf));
         sprintf(buf, "%04d-%02d-%02d", gps.date.year(), gps.date.month(), gps.date.day());
-        tft.setTextPadding(8 * 10);
+        tft.setTextSize(1);
         tft.setTextColor(TFT_GREENYELLOW, TFT_BLACK);
+        tft.setTextPadding(tft.textWidth(buf, 2));
         tft.drawString(buf, 250, 70, 2);
     }
 
     // Hdop
     double hdop = gps.satellites.isValid() && gps.hdop.age() < 3000 ? gps.hdop.hdop() : 0;
-    memset(buf, '\0', sizeof(buf));
-    dtostrf(hdop, 3, 2, buf);
+    sprintf(buf, "%.2f", hdop);
     tft.setTextPadding(14 * 6);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.drawString(buf, 445, 308, 2);
+    tft.drawString(buf, 85, 120, 2);
 
     // Sebesség
 #define MAX_SPEED 240
@@ -143,32 +142,40 @@ void displayValues() {
               SPEED_RADIUS /*radius*/, SPEED_RINGMETER_ANGLE /*angle*/,
               true /*coloredValue*/, " km/h", GREEN2RED);
 
+    // Max Speed
+    maxSpeed = MAX(maxSpeed, speedValue);
+    sprintf(buf, "%3d", maxSpeed);
+    tft.setTextPadding(3 * 14);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.drawString(buf, 390, 120, 2);
+
+#define VERTICAL_BARS_Y 290
     // Vertical Line bar - Batterry
     verticalLinearMeter(&tft,
-                        "Batt",    // category
-                        vBatterry, // val
-                        3,         // minVal
-                        6,         // maxVal
-                        0,         // x
-                        230,       // y
-                        30,        // bar-w
-                        10,        // bar-h
-                        2,         // gap
-                        15,        // n
-                        BLUE2RED); // color
+                        "Batt [V]",      // category
+                        vBatterry,       // val
+                        3,               // minVal
+                        6,               // maxVal
+                        0,               // x
+                        VERTICAL_BARS_Y, // bottom-left-y
+                        30,              // bar-w
+                        10,              // bar-h
+                        2,               // gap
+                        10,              // n
+                        BLUE2RED);       // color
 
     // Vertical Line bar - temperature
     verticalLinearMeter(&tft,
-                        "Temp",           // category
+                        "Temp [C]",       // category
                         temperature,      // val
                         -10,              // minVal
                         +45,              // maxVal
                         tft.width() - 30, // x = maxX - bar-w
-                        230,              // y
+                        VERTICAL_BARS_Y,  // bottom-left-y
                         30,               // bar-w
                         10,               // bar-h
                         2,                // gap
-                        15,               // n
+                        10,               // n
                         BLUE2RED,         // color
                         true);            // bal oldalt legyenek az értékek
 }

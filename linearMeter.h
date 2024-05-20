@@ -111,12 +111,15 @@ void linearMeter(TFT_eSPI *tft, int val, int x, int y, int w, int h, int g, int 
  */
 void verticalLinearMeter(TFT_eSPI *tft, const char *category, float val, float minVal, float maxVal, int x, int y, int w, int h, int g, int n, byte s, boolean mirrored = false) {
 
-    // Header
+    // Header szöveg kiírása
     tft->setTextSize(1);
     int16_t textWidthHeader = tft->textWidth(category, 2);
     tft->setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft->drawString(category, x + (textWidthHeader / 2), y - (n * (h + g)) - h, 2);
+    tft->drawString(category, x + (mirrored ? 0 : textWidthHeader / 2), y - (n * (h + g)) - h + 1, 2);
 
+    char buf[10]; // Karaktertömb a szöveg tárolásához
+
+    // Vertical bar-ok kirajzolása
     tft->setTextSize(1);
     int barVal = map(val, minVal, maxVal, 1, n);
     int colour = TFT_DARKGREY;
@@ -164,28 +167,29 @@ void verticalLinearMeter(TFT_eSPI *tft, const char *category, float val, float m
                       TFT_BLACK);                     // color
 
         // Koordináta érték megjelenítése
-        char buffer[10]; // Karaktertömb a szöveg tárolásához
-
         // A min/max szélsőérték megjelenítése
         if (b == 1 || b == n) {
-            sprintf(buffer, "%.1f", b == 1 ? minVal : maxVal); // Szám értékének formázása és karaktertömbbe írása
+            sprintf(buf, "%.1f", b == 1 ? minVal : maxVal); // Szám értékének formázása és karaktertömbbe írása
         } else if (b <= barVal && b + 1 > barVal) {
-            sprintf(buffer, "%.1f", val); // Aktuális érték formázása és karaktertömbbe írása
+            sprintf(buf, "%.1f", val); // Aktuális érték formázása és karaktertömbbe írása
         } else {
-            memset(buffer, '\0', sizeof(buffer));
+            memset(buf, '\0', sizeof(buf));
         }
 
-        int16_t textWidth = tft->textWidth(buffer, 1); // Szöveg szélességének kiszámítása
-        tft->setTextPadding(textWidth);                // Szélesség beállítása a paddinghez
-        tft->setTextColor(TFT_WHITE, TFT_BLACK);       // Fehér szöveg fekete háttérrel
+        int16_t textWidth = tft->textWidth(buf, 1); // Szöveg szélességének kiszámítása
+        tft->setTextPadding(textWidth);             // Szélesség beállítása a paddinghez
+        tft->setTextColor(TFT_WHITE, TFT_BLACK);    // Fehér szöveg fekete háttérrel
 
-        // Szöveg Kiírása
+        // koordináta szöveg kiírása
         // tft->drawString(buffer, x + (w / 2) - (textWidth / 2), y - (b * (h + g) / 2), 1); // Szöveg rajzolása bele a bar közepébe
-        tft->drawString(buffer,
-                        tickX,                     // x
-                        y - (b * (h + g)) + h / 2, // y
-                        1);                        // font
+        tft->drawString(buf, tickX, y - (b * (h + g)) + h / 2, 1);
     }
+
+    // Érték kiírása a bar-ok alá
+    sprintf(buf, "%.2f", val);            // Aktuális érték formázása és karaktertömbbe írása
+    tft->setTextPadding(4 * FONT2_WIDTH); // Szélesség beállítása a paddinghez
+    tft->setTextSize(2);
+    tft->drawString(buf, x + (mirrored ? 0 : 30), y + 10, 1);
 }
 
 // #########################################################################

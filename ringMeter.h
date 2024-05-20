@@ -86,6 +86,14 @@ int ringMeter(TFT_eSPI *tft, int value, int vmin, int vmax, int x, int y, int r,
 
     // Draw colour blocks every inc degrees
     for (int i = -halfAngle + inc / 2; i < halfAngle - inc / 2; i += inc) {
+
+        // Kicsi méret esetén ritkítunk
+        if (r < 50) {
+            if (i % 4) {
+                continue;
+            }
+        }
+
         // Calculate pair of coordinates for segment start
         float sx = cos((i - 90) * 0.0174532925);
         float sy = sin((i - 90) * 0.0174532925);

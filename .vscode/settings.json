@@ -27,6 +27,7 @@
         "string_view": "cpp",
         "initializer_list": "cpp",
         "*.impl": "cpp",
-        "compare": "cpp"
+        "compare": "cpp",
+        "mutex": "cpp"
     }
 }

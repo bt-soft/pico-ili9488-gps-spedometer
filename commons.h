@@ -47,4 +47,10 @@
 // Speed RingMeter max érték
 #define SPEED_RINGMETER_MAX_VALUE 240
 #define SPEED_RINGMETER_RADIUS 140
+
+#define GPS_DATA_MAX_AGE 5000
+
+// Minimum ennyi ideig látszik a traffipax alarm
+#define ALARM_TIME_MS 10000
+
 #endif

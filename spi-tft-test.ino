@@ -48,6 +48,44 @@ bool timeHasPassed(long fromWhen, int howLong) {
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 
+bool traffiAlarmActive = false;
+
+/**
+ *
+ */
+void processTraffiAlarm() {
+
+    static long lastAlarm = millis();
+
+    // Aktív az alarm?
+    if (traffiAlarmActive) {
+
+        // De még nem járt le az időzítése?
+        if (!timeHasPassed(lastAlarm, ALARM_TIME_MS)) {
+            return;
+        }
+
+        // Aktív az alarm, és le is járt az időzítése -> töröljük a viewport-ot és az alarm flag-et is
+        tft.resetViewport();
+        tft.fillRect(100, 20, 280, 60, TFT_BLACK); // töröljük a viewport területét
+        traffiAlarmActive = false;
+        lastAlarm = millis();
+        return;
+
+    } else {
+        // Nem aktív az alarm, de meghívtak -> Bekapcsoljuk az alarm flag-et és a viewport-ot is
+        tft.setViewport(100, 20, 280, 60, true);
+        tft.frameViewport(TFT_RED, 3);             // 3 pixel keret a viewport-on belül
+        tft.fillRect(100, 20, 280, 60, TFT_BLACK); // töröljük a viewport területét
+        traffiAlarmActive = true;
+    }
+
+    // Alarm aktualizálása
+    tft.setTextSize(1);
+    tft.setTextColor(TFT_YELLOW, TFT_RED);
+    tft.drawString("TRAFFIPAX ALARM!!!", 150, 30, 2);
+}
+
 /**
  * Fejléc feliratok
  */
@@ -87,7 +125,7 @@ void displayValues() {
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
 
     // Műholdak száma
-    short sats = gps.satellites.isValid() && gps.satellites.age() < 3000 ? gps.satellites.value() : 0;
+    short sats = gps.satellites.isValid() && gps.satellites.age() < GPS_DATA_MAX_AGE ? gps.satellites.value() : 0;
     ringMeter(&tft, sats,
               SATS_RINGETER_MIN, // min
               SATS_RINGETER_MAX, // max
@@ -100,41 +138,43 @@ void displayValues() {
               RED2GREEN);
 
     // Magasság
-    int alt = gps.satellites.isValid() && gps.altitude.age() < 3000 ? gps.altitude.meters() : 0;
+    int alt = gps.satellites.isValid() && gps.altitude.age() < GPS_DATA_MAX_AGE ? gps.altitude.meters() : 0;
     sprintf(buf, "%4d", alt);
     tft.setTextPadding(14 * 4);
     tft.drawString(buf, 450, 30, 4);
 
-    // Idő
-    if (gps.time.isValid() && gps.time.age() < 3000) {
-        int hours = gps.time.hour();
-        int mins = gps.time.minute();
-        dls.correctTime(mins, hours, gps.date.day(), gps.date.month(), gps.date.year());
-        sprintf(buf, "%02d:%02d:%02d", hours, mins, gps.time.second());
-        tft.setTextSize(1);
-        tft.setTextColor(TFT_WHITE, TFT_BLACK);
-        tft.setTextPadding(tft.textWidth(buf, 6));
-        tft.drawString(buf, 250, 45, 6);
-    }
+    if (!traffiAlarmActive) {
+        // Idő
+        if (gps.time.isValid() && gps.time.age() < GPS_DATA_MAX_AGE) {
+            int hours = gps.time.hour();
+            int mins = gps.time.minute();
+            dls.correctTime(mins, hours, gps.date.day(), gps.date.month(), gps.date.year());
+            sprintf(buf, "%02d:%02d:%02d", hours, mins, gps.time.second());
+            tft.setTextSize(1);
+            tft.setTextColor(TFT_WHITE, TFT_BLACK);
+            tft.setTextPadding(tft.textWidth(buf, 6));
+            tft.drawString(buf, 250, 45, 6);
+        }
 
-    // Dátum
-    if (gps.date.isValid() && gps.date.age() < 3000) {
-        sprintf(buf, "%04d-%02d-%02d", gps.date.year(), gps.date.month(), gps.date.day());
-        tft.setTextSize(1);
-        tft.setTextColor(TFT_GREENYELLOW, TFT_BLACK);
-        tft.setTextPadding(tft.textWidth(buf, 2));
-        tft.drawString(buf, 250, 70, 2);
+        // Dátum
+        if (gps.date.isValid() && gps.date.age() < GPS_DATA_MAX_AGE) {
+            sprintf(buf, "%04d-%02d-%02d", gps.date.year(), gps.date.month(), gps.date.day());
+            tft.setTextSize(1);
+            tft.setTextColor(TFT_GREENYELLOW, TFT_BLACK);
+            tft.setTextPadding(tft.textWidth(buf, 2));
+            tft.drawString(buf, 250, 70, 2);
+        }
     }
 
     // Hdop
-    double hdop = gps.satellites.isValid() && gps.hdop.age() < 3000 ? gps.hdop.hdop() : 0;
+    double hdop = gps.satellites.isValid() && gps.hdop.age() < GPS_DATA_MAX_AGE ? gps.hdop.hdop() : 0;
     sprintf(buf, "%.2f", hdop);
     tft.setTextPadding(5 * 14);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
     tft.drawString(buf, 75, 120, 4);
 
     // Sebesség
-    int speedValue = gps.speed.isValid() && gps.speed.age() < 3000 && gps.speed.kmph() >= 4 ? gps.speed.kmph() : 0;
+    int speedValue = gps.speed.isValid() && gps.speed.age() < GPS_DATA_MAX_AGE && gps.speed.kmph() >= 4 ? gps.speed.kmph() : 0;
     ringMeter(&tft,
               speedValue,                                 // val
               0,                                          // minValue
@@ -183,6 +223,18 @@ void displayValues() {
                         10,                // n
                         BLUE2RED,          // color
                         true);             // bal oldalt legyenek az értékek
+
+    // // Traffipax alarm aktív?
+    // if (traffiAlarmActive) {
+    //     processTraffiAlarm();
+    // }
+
+    // // Test alarm 30mp-enként
+    // static long testTrafiAlarm = millis();
+    // if (timeHasPassed(testTrafiAlarm, 30000)) {
+    //     processTraffiAlarm();
+    //     testTrafiAlarm = millis();
+    // }
 }
 
 /**
@@ -258,33 +310,15 @@ void readGPS() {
 
     // Kiolvassuk és dekódoljuk az összes GPS adatot
     while (Serial2.available() > 0) {
-        gps.encode(Serial2.read());
+        char c = Serial2.read();
+
+        // LED villogtatása, ha van érvéynes bejövő GPS mondat
+        if (gps.encode(c)) {
+            digitalWrite(LED_BUILTIN, HIGH);
+            delayMicroseconds(500);
+            digitalWrite(LED_BUILTIN, LOW);
+        }
     }
-
-    gpsDataReceivedLED();
-}
-
-/**
- * LED villogtatása, ha van GPS bejövő mondat
- */
-void gpsDataReceivedLED() {
-#ifdef __DEBUG_ON_SERIAL__
-    static bool ledState = false;
-    static long stateChanged = millis();
-
-    // Ha eltelt már 10msec és a LED aktív, akkor kikapcsoljuk a LED-et
-    if (timeHasPassed(stateChanged, 10) && ledState) {
-        ledState = false;
-        digitalWrite(LED_BUILTIN, ledState);
-        return;
-    }
-
-    if (timeHasPassed(stateChanged, 1000)) {
-        ledState = !ledState;
-        digitalWrite(LED_BUILTIN, ledState);
-        stateChanged = millis();
-    }
-#endif
 }
 
 /**
@@ -325,9 +359,9 @@ void setup1(void) {
     // AD felbontás beállítása
     analogReadResolution(AD_RESOLUTION);
 
-    // DS18B20 Hőmérsékletmérő szenzor
+    // DS18B20 Hőmérsékletmérő szenzor, felbontásban követjük a belső AD-t
     ds18B20.begin();
-    ds18B20.setResolution(12);
+    ds18B20.setResolution(AD_RESOLUTION);
     ds18B20.setWaitForConversion(false);
 }
 

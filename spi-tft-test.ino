@@ -149,7 +149,7 @@ void displayValues() {
             int hours = gps.time.hour();
             int mins = gps.time.minute();
             dls.correctTime(mins, hours, gps.date.day(), gps.date.month(), gps.date.year());
-            sprintf(buf, "%02d:%02d:%02d", hours, mins, gps.time.second());
+            sprintf(buf, "%02d:%02d", hours, mins);
             tft.setTextSize(1);
             tft.setTextColor(TFT_WHITE, TFT_BLACK);
             tft.setTextPadding(tft.textWidth(buf, 6));
@@ -315,7 +315,7 @@ void readGPS() {
         // LED villogtatása, ha van érvéynes bejövő GPS mondat
         if (gps.encode(c)) {
             digitalWrite(LED_BUILTIN, HIGH);
-            delayMicroseconds(500);
+            delayMicroseconds(250);
             digitalWrite(LED_BUILTIN, LOW);
         }
     }

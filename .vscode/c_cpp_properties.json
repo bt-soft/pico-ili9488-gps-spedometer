@@ -21,12 +21,12 @@
                 "${USERPROFILE}/Documents/Arduino/libraries/**"
             ],
             "forcedInclude": [
-                "${USERPROFILE}/AppData/Local/Arduino15/packages/rp2040/hardware/rp2040/3.8.0/cores/rp2040/Arduino.h"
+                "${USERPROFILE}/AppData/Local/Arduino15/packages/rp2040/hardware/rp2040/3.8.1/cores/rp2040/Arduino.h"
             ],
             "cStandard": "c11",
             "cppStandard": "c++17",
             "defines": [
-                "NO_USB -DDISABLE_USB_SERIAL -I${USERPROFILE}/AppData/Local/Arduino15/packages/rp2040/hardware/rp2040/3.8.0/tools/libpico",
+                "NO_USB -DDISABLE_USB_SERIAL -I${USERPROFILE}/AppData/Local/Arduino15/packages/rp2040/hardware/rp2040/3.8.1/tools/libpico",
                 "CFG_TUSB_MCU=OPT_MCU_RP2040",
                 "USBD_PID=0x000a",
                 "USBD_VID=0x2e8a",

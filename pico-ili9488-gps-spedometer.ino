@@ -250,8 +250,6 @@ void setup(void) {
     tft.setRotation(1);
     tft.fillScreen(TFT_BLACK);
 
-    // plotLinear(&tft, "A0", 0, 160);
-
     displayHeaderText();
 }
 
@@ -326,12 +324,13 @@ void readGPS() {
  */
 float readBatterry() {
 #define V_REFERENCE 3.3f
-#define R_ATTENNUATOR ((22.0f + 4.69f) / 4.69f)
+#define R_ATTENNUATOR ((22.0f + 4.69f) / 4.69f) // A feszültségosztó ellenállások értéke
 #define CONVERSION_FACTOR (1 << AD_RESOLUTION)
+#define VOLTAGE_ATT_CORR -0.02 // A feszültségosztón mért valós feszültség korrigálásához
 
     // ADC érték átalakítása feszültséggé
     float voltageOut = (analogRead(A3) * V_REFERENCE) / CONVERSION_FACTOR;
-    voltageOut -= 0.02; // csalunk egyet, ez a precíz feszültség az osztón
+    voltageOut += VOLTAGE_ATT_CORR; // csalunk egyet, ez a valós feszültség (műszeres méréssel) az osztón
     // Serial << "Vout: " << voltageOut << endl;
 
     // Eredeti feszültség számítása a feszültségosztó alapján
@@ -339,7 +338,7 @@ float readBatterry() {
 }
 
 /**
- * CPU beépített hőmérséklet mérő olvasása
+ * DS18B20 hőmérő szenzor olvasása
  */
 float readtemperature() {
     ds18B20.requestTemperaturesByIndex(DS18B20_TEMP_SENSOR_NDX);
